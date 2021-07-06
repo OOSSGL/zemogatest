@@ -80,7 +80,7 @@ class PortfolioSchema(ma.Schema):
         )
 
 
-# Init schema
+# Init schemas
 portfolio_schema = PortfolioSchema()
 portfolios_schema = PortfolioSchema(many=True)
 
