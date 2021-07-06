@@ -2,15 +2,15 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from werkzeug.exceptions import BadRequest, NotFound
+
+from decouple import config
 import tweepy
 
-from twitter_utils import get_last_five_tweets
 
-
-auth = tweepy.OAuthHandler('KRy7l0v8wex3w8Sy5zThai3Ea',
-                           'X2eBm0Y21kYEuR74W3Frqc2JVIizOj8Q1EVGatDsEVVEJo0ucu')
-auth.set_access_token('1220032047516921859-otvXjhExyUTZ5GLxssc9h5ORqtPZja',
-                      'tmJKqM4ORfQW6CH7wIVV8uKNpmSEmeFAP8lYwGb19uYjj')
+auth = tweepy.OAuthHandler(config('TWITTER_API_KEY'),
+                           config('TWITTER_SECRET_KEY'))
+auth.set_access_token(config('TWITTER_TOKEN'),
+                      config('TWITTER_TOKEN_SECRET'))
 
 twitter_api = tweepy.API(auth)
 
@@ -18,7 +18,7 @@ twitter_api = tweepy.API(auth)
 app = Flask(__name__, template_folder="templates")
 
 # Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://zemoga_test_db:Zem0ga.101@zemoga-test-db.crhpedy9xxto.us-east-1.rds.amazonaws.com/zemoga_test_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = config('MYSQL_DB')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init db
