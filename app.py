@@ -2,7 +2,17 @@ from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from werkzeug.exceptions import BadRequest, NotFound
-import os
+import tweepy
+
+from twitter_utils import get_last_five_tweets
+
+
+auth = tweepy.OAuthHandler('KRy7l0v8wex3w8Sy5zThai3Ea',
+                           'X2eBm0Y21kYEuR74W3Frqc2JVIizOj8Q1EVGatDsEVVEJo0ucu')
+auth.set_access_token('1220032047516921859-otvXjhExyUTZ5GLxssc9h5ORqtPZja',
+                      'tmJKqM4ORfQW6CH7wIVV8uKNpmSEmeFAP8lYwGb19uYjj')
+
+twitter_api = tweepy.API(auth)
 
 # Create the application instance
 app = Flask(__name__, template_folder="templates")
@@ -211,6 +221,28 @@ def delete_portfolio(id):
     db.session.commit()
 
     return portfolio_schema.jsonify(portfolio)
+
+
+# Get Tweets
+@app.route('/tweets/<screen_name>', methods=['GET'])
+def get_tweets(screen_name):
+    try:
+        tweets = twitter_api.user_timeline(screen_name=screen_name, count=5)
+        res_tweets = []
+        for tweet in tweets:
+            res_tweet = {
+                'date': tweet.created_at,
+                'text': tweet.text
+            }
+            print(tweet.text)
+            res_tweets.append(res_tweet)
+        response = {
+            'tweets': res_tweets
+        }
+        return response
+    except tweepy.error.TweepError as e:
+        error = 'Code: ' + str(e.args[0][0]['code']) + ' Message: ' + e.args[0][0]['message']
+        raise BadRequest(error)
 
 
 # If we're running in stand alone mode, run the application
